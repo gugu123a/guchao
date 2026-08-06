@@ -262,6 +262,7 @@ body.sidebar-action-open .rename-dialog input{-webkit-user-select:text;user-sele
     </button>
     <div class="topbar-actions">
       <button class="icon-button new-chat-button" id="newChat" aria-label="新对话"></button>
+      <button class="icon-button" id="exportChat" aria-label="导出对话" title="导出对话"></button>
     </div>
     <div class="session-menu hidden" id="sessionMenu">
       <div class="session-menu-title" id="sessionMenuTitle">新对话</div>
@@ -457,6 +458,8 @@ const chat=$('chat'),stream=$('stream'),streamInner=$('streamInner'),input=$('in
 function drawerDebugUpdate(){}
 $('openDrawer').innerHTML=icon('menu');
 $('newChat').innerHTML=icon('chatAdd');
+$('exportChat').innerHTML='<svg class="lucide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+$('exportChat').onclick=exportConversation;
 $('topbarModelChevron').innerHTML=icon('chevron');
 $('attachButton').innerHTML=icon('plus');
 $('micButton').innerHTML=icon('mic');
@@ -1938,6 +1941,41 @@ async function openSession(s){if(state.busy)stopActiveResponseNow();closeDrawer(
   }catch{
     streamInner.innerHTML='<div class="history-loading">这段对话暂时无法读取。</div>';
   }
+}
+
+async function exportConversation(){
+  if(!state.convId){toast('还没有可导出的对话');return}
+  try{
+    let all=[...(state._loadedMessages||[])];
+    let before=state._oldestMessageId,hasMore=state._historyHasMore;
+    while(hasMore&&before){
+      const r=await api(`/api/sessions/${encodeURIComponent(state.convId)}/messages?limit=${PAGE_SIZE}&before_id=${before}`);
+      if(!r.ok)break;
+      const d=await r.json(),older=d.messages||[];
+      if(!older.length)break;
+      all=[...older,...all];
+      hasMore=!!d.has_more;
+      before=d.next_before_id||(older[0]&&older[0].id);
+    }
+    if(!all.length){toast('还没有可导出的对话');return}
+    const now=new Date(),pad=n=>String(n).padStart(2,'0');
+    const dateStr=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+    const timeStr=`${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const L=['# Claude in edge 对话记录','',`> 导出时间：${dateStr} ${timeStr} · 共 ${all.length} 条消息`,''];
+    all.forEach(m=>{
+      const role=m.role==='user'?'**我**':'**Claude**';
+      L.push(`${role}：`,'');
+      if(m.role!=='user'&&m.thinking){L.push('> [!note] 思考过程','> '+m.thinking.replace(/\n/g,'\n> '),'')}
+      L.push(m.text||'','');
+    });
+    const blob=new Blob([L.join('\n')],{type:'text/markdown;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=`claude-in-edge-对话-${dateStr}.md`;
+    document.body.appendChild(a);a.click();a.remove();
+    URL.revokeObjectURL(url);
+    toast('对话已导出');
+  }catch{toast('导出失败，请重试')}
 }
 
 document.addEventListener('click',e=>{if(!$('sessionMenu').contains(e.target))closeSessionMenu()});
