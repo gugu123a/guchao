@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "sharp": "^0.35.3",
+    "ttf2woff2": "^8.0.1"
+  }
+}

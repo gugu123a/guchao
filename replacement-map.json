@@ -1,0 +1,42 @@
+{
+  "title": {
+    "public": "Agent Chat",
+    "private": "Claude"
+  },
+  "reply_placeholder": {
+    "public": "Reply to assistant",
+    "private": "Reply to Claude"
+  },
+  "new_chat_placeholder": {
+    "public": "Chat with assistant",
+    "private": "Chat with Claude"
+  },
+  "disclaimer": {
+    "public": "AI can make mistakes.<br>Please double-check responses.",
+    "private": "Claude is AI and can make mistakes.<br>Please double-check responses."
+  },
+  "navigation_aria_label": {
+    "public": "Navigation",
+    "private": "Claude navigation"
+  },
+  "profile_name_placeholder": {
+    "public": "助手怎么称呼你",
+    "private": "Claude 怎么称呼你"
+  },
+  "copied_transcript_prefix": {
+    "public": "Assistant:",
+    "private": "Claude:"
+  },
+  "sidebar_wordmark": {
+    "public": "Agent Chat text placeholder",
+    "private": "SVG wordmark in brand-snippets.html"
+  },
+  "status_mark_sprites": {
+    "public": "generic placeholder SVG sprites",
+    "private": "CLAUDE_LOGO_SPRITES in brand-snippets.html"
+  },
+  "fonts": {
+    "public": "system font stacks",
+    "private": "brand-fonts.css"
+  }
+}
